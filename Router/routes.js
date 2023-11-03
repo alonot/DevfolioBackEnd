@@ -1,5 +1,5 @@
 const express = require('express')
-const ReviewCltr=require('./routesController')
+const ReviewCltr=require('./routesController.js')
 const router= express.Router()
 
 router.route('/auth/').get(ReviewCltr.authenticate)
