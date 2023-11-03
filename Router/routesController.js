@@ -1,4 +1,4 @@
-const dao=require('../DAO/dbDao')
+const dao=require('../DAO/dbDao.js')
 
 class ReviewCltr{
     static async getUser(req,res,next) {
