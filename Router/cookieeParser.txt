@@ -1,0 +1,31 @@
+    //Just for Testing Cookie
+    static async tester(req,res,next){
+        try {
+            const data=req.body
+            console.log(data)
+            res.set('Access-Control-Allow-Origin',req.headers.origin)
+            res.set('Access-Control-Allow-Credentials','true')
+            if(data){
+                const result= {success:true}
+                if(result.success){
+                    console.log(result)
+                    res.cookie('useer','ff',{
+                        maxAge: 60*60*24*30*100,// this is not from current time but from some other timeZone but th resultant time is applied to your pc.
+                        // expires:new Date('3 November 2023'),
+                        path:'/',
+                        sameSite:'None', //when working with cross-site requests
+                        httpOnly:true,
+                        secure:true
+                        //secure:true,} //- only accessible to this domain and subdomain}
+                        }
+                    )
+                    return res.status(200).json(result)
+                }else{
+                    return res.status(404).json(result)
+                }
+        }
+
+        } catch (error) {
+            return res.status(404).json({success:false,msg:error})
+        }
+    }
