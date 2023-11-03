@@ -6,6 +6,8 @@ const client = new MongoClient(url)
 
 const dao=require('./DAO/dbDao')
 
+const port = process.env.PORT || 5000
+
 dao.injectDb(client)
 
 // const getDb=async()=>{

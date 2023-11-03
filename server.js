@@ -3,7 +3,7 @@ const cors=require('cors')
 const session=require('express-session')
 
 const app = express()
-const UserRouter=require('./Router/routes');
+const UserRouter=require('./Router/routes.js');
 const cookieParser = require('cookie-parser');
 
 app.use(express.urlencoded({extended:false}))
@@ -41,7 +41,7 @@ app.all('*',(req,res)=>{
     res.status(404).send("Resource Not Found")
 })
 
-require('./index')
+require('./index.js')
 
 // const port = process.env.port || 5000
 const port = 5000
