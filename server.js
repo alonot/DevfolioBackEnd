@@ -2,22 +2,25 @@ const express = require('express')
 const cors=require('cors')
 const UserRouter=require('./Router/routes.js');
 
-const app = express()
 const indexxer=require('./index.js')
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+
+const app = express()
+
+app.use(cors())
 
 app.use(express.urlencoded({extended:false}))
 app.use(express.json())
-const corsOptions={
-    origin:'https://chaiwala-e9u7.onrender.com',
-}
-app.all('*',function(req,res,next){
-    res.set('Access-Control-Allow-Origin',req.headers.origin)
-    res.set('Access-Control-Allow-Credentials','true')
-    next()
-})
-app.use(cors(corsOptions))
-app.use(cookieParser())
+// const corsOptions={
+//     origin:'https://chaiwala-e9u7.onrender.com',
+// }
+// app.all('*',function(req,res,next){
+//     res.set('Access-Control-Allow-Origin',req.headers.origin)
+//     res.set('Access-Control-Allow-Credentials','true')
+//     next()
+// })
+// app.use(cors(corsOptions))
+// app.use(cookieParser())
 
 
 app.use('/api/v1/user',UserRouter)
