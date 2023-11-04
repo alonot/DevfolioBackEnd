@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 const corsOptions={
-    origin:'null',
+    origin:'https://chaiwala-e9u7.onrender.com/',
 }
 app.all('*',function(req,res,next){
     res.set('Access-Control-Allow-Origin',req.headers.origin)
