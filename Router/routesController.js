@@ -1,5 +1,7 @@
-const dao=require('../DAO/dbDao')
-var session = require('express-session');
+const dao=require('../DAO/dbDao.js')
+const bcrypt=require('bcrypt')
+const jwt=require('jsonwebtoken')
+const SessionDao = require('../DAO/SessionDao.js')
 
 class ReviewCltr{
     static async getUser(req,res,next) {
@@ -21,7 +23,9 @@ class ReviewCltr{
         console.log(req.body)
         const data= req.body
         if(data){
-            const result= await dao.postUser(data.name,data.username,data.above18,data.contact,data.email,data.password)
+            let pass=data.password
+            pass=await bcrypt.hash(String(pass),10)
+            const result= await dao.postUser(data.name,data.username,data.above18,data.contact,data.email,pass)
             if(result.success){
                 return res.status(200).json(result)
             }else{
@@ -111,17 +115,31 @@ class ReviewCltr{
             res.set('Access-Control-Allow-Origin',req.headers.origin)
             const data=req.body
             if(data){
-                const result= await dao.login(data.username,data.password)
+                const result= await dao.login(data.username)
                 if(result.success){
-                    console.log(result,"here")
-                    res.cookie('user',result.user,{
-                        maxAge: 60*60*24*30,
-                        sameSite:'None', //when working with cross-site requests
-                        httpOnly:true,
-                        secure:true,
-                        domain:""
+                    console.log(result)
+                    let sessionId=null
+                    jwt.sign(data.username,'secretKey',(err,token)=>{
+                        sessionId=token
                     })
-                    return res.status(200).json(result)
+                    if (await bcrypt.compare(String(data.password),String(result.pass)) && sessionId!= null){
+                        res.cookie('sessionId',sessionId,{
+                            maxAge: 60*60*24*30,
+                            sameSite:'None', //when working with cross-site requests
+                            httpOnly:true,
+                            secure:true,
+                            domain:""
+                        })
+                        const resultSession=SessionDao.putSessionId(sessionId,data.username)
+                        if(resultSession.success)
+                            return res.status(200).json({success:true,user:data.username,plan:result.plan})
+                        else{
+                            return res.status(404).json(result)
+                        }
+
+                    }else{
+                        return res.status(404).json({success:false,msg:"Passwords Didn't match"})
+                    }
                 }else{
                     return res.status(404).json(result)
                 }
@@ -136,10 +154,16 @@ class ReviewCltr{
         try {
             res.set('Access-Control-Allow-Origin',req.headers.origin)
             console.log("autheticating..")
-
-             if(req.cookies.user){
-                console.log(req.cookies)
-                return res.status(200).json({success:true,user:req.cookies.user})
+            
+             if(req.cookies.sessionId){
+                console.log(req.cookies.sessionId)
+                const result=await SessionDao.verify(req.cookies.sessionId)
+                if(result.success)
+                    return res.status(200).json(result)
+                else{
+                    res.clearCookie('sessionId')
+                    return res.status(404).json(result)
+                }
              }else{
                 return res.status(404).json({success:false,user:null})
              }
@@ -152,10 +176,14 @@ class ReviewCltr{
     static async logout(req,res,next){
         try{
             res.set('Access-Control-Allow-Origin',req.headers.origin)
-            if(req.cookies.user != null){
+            if(req.cookies.sessionId != null){
                 console.log(req.cookies)
-                res.clearCookie('user')
-                res.status(200).json({success:true,msg:"Logged out."})
+                const result=await SessionDao.delSession(req.cookies.sessionId)
+                res.clearCookie('sessionId')
+                if (result.success)
+                    res.status(200).json({success:true,msg:"Logged out."})
+                else
+                return res.status(404).json(result)
             }else{
                 res.status(404).json({success:false,msg:"Not Logged in"})
             }

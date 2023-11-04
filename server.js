@@ -1,15 +1,15 @@
 const express = require('express')
 const cors=require('cors')
-const session=require('express-session')
+const UserRouter=require('./Router/routes');
 
 const app = express()
-const UserRouter=require('./Router/routes.js');
+require('./index')
 const cookieParser = require('cookie-parser');
 
 app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 const corsOptions={
-    origin:'https://chaiwala-e9u7.onrender.com',
+    origin:'null',
 }
 app.all('*',function(req,res,next){
     res.set('Access-Control-Allow-Origin',req.headers.origin)
@@ -17,14 +17,6 @@ app.all('*',function(req,res,next){
     next()
 })
 app.use(cors(corsOptions))
-// app.use((req,res,next)=>{
-//     console.log(req.headers)
-//     res.set('Access-Control-Allow-Origin',req.headers.origin)
-//     res.set('Access-Control-Allow-Credentials','true')
-
-//     console.log(res.getHeaders())
-//     next()
-// })
 app.use(cookieParser())
 
 
@@ -41,7 +33,6 @@ app.all('*',(req,res)=>{
     res.status(404).send("Resource Not Found")
 })
 
-require('./index.js')
 
 // const port = process.env.port || 5000
 const port = 5000

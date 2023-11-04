@@ -1,5 +1,4 @@
-const express=require('express')
-const cookie= require('cookie-parser')
+
 let db
 class Dao{
     static async injectDb(client){
@@ -18,6 +17,7 @@ class Dao{
             return {success:false,error:error}
         }
     }
+
     static async getCart(username) {
         try{
             const ans=await db.findOne({user_name:username})
@@ -26,11 +26,10 @@ class Dao{
         }else{
             return {success:false,msg:"Can't Find the user"}
         }
-    }catch (err){
-        return {success:false,msg:err}
+        }catch (err){
+            return {success:false,msg:err}
+        }
     }
-    }
-
 
     static async postUser(Name,username,above18,contact,email,password) {
         console.log(" posting ...")
@@ -95,16 +94,12 @@ class Dao{
         return await db.find().toArray()
     }
 
-    static async login(username,password){
+    static async login(username){
         try {
             console.log(username)
             const user=await db.findOne({user_name:username})
             if(user){
-                if(user['password']== ""+password){
-                    return {success:true,user:username,plan:user.plan}
-                }else{
-                    return {success:false,msg:"Wrong Password"}
-                }
+                return {success:true,pass:user.password,plan:user.plan}
             }else{
                 return {success:false,msg:"Username not found"}
             }
